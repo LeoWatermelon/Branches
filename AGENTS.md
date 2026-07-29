@@ -10,6 +10,18 @@ plan board. There is no backend — all state lives in the browser via
 `localStorage`. See `README.md` for the feature list and product framing, and
 `Branches PRD.pdf` for the original product spec.
 
+## Git workflow
+
+This repo is shared — changes can land on GitHub (`origin/main`) from outside
+your session (e.g. edits made directly in the GitHub UI or by another
+collaborator/agent). **Before making any local changes, run `git fetch
+origin` and check `origin/main` against your local `main`; if it has moved,
+pull/rebase before you start editing** so you're never working from a stale
+tree and don't create an avoidable divergence. Rebase (not merge) local
+commits on top of `origin/main` when they do diverge, to keep history linear.
+Do the same fetch-and-check immediately before pushing, in case the remote
+moved again while you were working.
+
 ## Tech stack
 
 Plain HTML/CSS/JavaScript. No framework, no bundler, no package manager
