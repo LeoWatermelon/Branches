@@ -1,70 +1,100 @@
-# Branches 🌿
+# Branches
 
-Branches is a motivational organization prototype for documenting main goals and breaking each one into smaller, connected tasks. Instead of treating planning like a flat checklist, Branches lets each task grow into smaller tasks, so users can move from a broad goal to specific next steps.
+Branches is a motivational planning app for turning a large goal into smaller, connected tasks. The core idea is simple: a goal should not feel like a flat checklist. It should grow like a living structure, where every task can branch into smaller tasks until the next step feels clear.
 
 ![Branches preview](Branches%20UI/Main%20preview.png)
 
+## What It Does
+
+Branches starts with a main-goals page. Each main goal can have its own icon, deadline, notes, and task tree. Opening a goal brings the user into a focused workspace where the same task structure can be viewed in three different ways.
+
+- **Branches**: a branch-inspired visual workspace for growing tasks from the current goal
+- **Mindmap**: a cleaner node map for seeing task relationships
+- **Plan Board**: a row-based planning view for scanning tasks one path at a time
+
+All three views use the same underlying data. If a user adds, edits, completes, removes, restores, or moves a task in one view, the other views update automatically.
+
 ## Features
 
-- Start from a dedicated main-goals page
-- Create main goals with icons and deadlines
-- Open a main goal into a focused workspace
-- Add smaller tasks from any task
-- View the same task structure in three modes:
-  - **Branches** — a visual branch-inspired workspace
-  - **Mindmap** — a clearer node-based task map
-  - **Plan Board** — a row-based planning view
-- Edit task names, notes, due dates, and priority numbers
-- Move a task, including all of its smaller tasks, under another task
-- Mark tasks as done, even when smaller tasks are unfinished, with confirmation
+- Create, edit, select, and remove main goals
+- Choose an icon and deadline for each main goal
+- Add smaller tasks under any task
+- Edit task name, notes, priority number, and due date
+- Move a task under another task, including all of its smaller tasks
+- Mark tasks as done with confirmation
 - Restore completed tasks back into progress
 - Remove completed tasks into a collection
 - Restore removed tasks from the collection
 - Undo the most recent structural or status action
-- Progress tracking for the currently selected task
-- In-app confirmations and disabled-button hints
+- Track task progress with completed/total fractions
+- Use in-app confirmation dialogs instead of browser alerts
+- See hover hints when an action is unavailable
 
 ## Tech Stack
 
-Plain HTML, CSS, and JavaScript — no build step or framework. Task data is persisted client-side with `localStorage`.
+Branches is a static frontend prototype built with:
 
-## Getting Started
+- HTML
+- CSS
+- Vanilla JavaScript
+- `localStorage` for browser-side persistence
 
-This is a static prototype with no dependencies to install. From the project folder, run:
+There is no backend, account system, database, or build pipeline yet.
+
+## Run Locally
+
+From the project folder:
 
 ```bash
 npm start
 ```
 
-This serves the app at:
+Then open:
 
 ```text
 http://localhost:5173
 ```
 
-Alternatively, serve it directly with Python:
+You can also serve the folder with Python:
 
 ```bash
 python3 -m http.server 5173
+```
+
+## Check The App
+
+Run the JavaScript syntax check:
+
+```bash
+npm run check
 ```
 
 ## Project Structure
 
 ```text
 .
-├── index.html          # App shell and markup
-├── styles.css           # Styling for all three view modes
-├── app.js               # App state, rendering, and interactions
-├── assets/               # Background textures and reference images
-├── Branches UI/          # Preview screenshots
-├── Branches PRD.pdf      # Product requirements doc
-└── package.json
+├── index.html             # App markup and templates
+├── styles.css             # Layout, views, jungle theme, and responsive styling
+├── app.js                 # State, rendering, interactions, and localStorage
+├── assets/                # Backgrounds and texture assets
+├── Branches UI/           # Design previews and screenshots
+├── Branches PRD.pdf       # Product requirements document
+├── package.json           # Local scripts
+└── README.md
 ```
 
-## Notes
+## Data Storage
 
-Task data is currently stored in the browser with `localStorage`, so this prototype does not include accounts, cloud sync, or database persistence yet.
+Task data is stored locally in the user's browser with `localStorage`. This is useful for a prototype, but it means data is tied to the current browser and device.
+
+Future production versions could add:
+
+- User accounts
+- Cloud sync
+- Export/import
+- Collaboration
+- Notifications for deadlines
 
 ## Status
 
-Functional prototype ready for GitHub.
+Branches is currently a functional frontend prototype. The main planning flow is complete enough for local testing and GitHub sharing, with future work focused on persistence, authentication, deployment, and more polished visual rendering.
