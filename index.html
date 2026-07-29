@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta
+      name="description"
+      content="Branches helps users break long-term goals into smaller tasks on a mindmap."
+    >
+    <title>Branches</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="header-garden" aria-hidden="true">
+        <span class="garden-vine vine-main"></span>
+        <span class="garden-vine vine-secondary"></span>
+        <span class="garden-leaf leaf-a"></span>
+        <span class="garden-leaf leaf-b"></span>
+        <span class="garden-leaf leaf-c"></span>
+        <span class="garden-leaf leaf-d"></span>
+        <span class="garden-bud bud-a"></span>
+        <span class="garden-bud bud-b"></span>
+      </div>
+      <div>
+        <h1>Branches</h1>
+      </div>
+      <div class="header-actions">
+        <button id="homeButton" class="secondary-button" type="button" hidden>Main goals</button>
+        <button id="undoButton" class="secondary-button" type="button" disabled>Undo</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="goalsPage" class="goals-page" aria-label="Main goals">
+        <div class="panel-title">
+          <div>
+            <p class="eyebrow">Goal forest</p>
+            <h2>Your main goals</h2>
+          </div>
+          <span id="goalCount" class="count-pill">0</span>
+        </div>
+
+        <div class="goals-home-layout">
+          <form id="treeForm" class="panel stacked-form goal-create-panel">
+            <div>
+              <p id="goalFormEyebrow" class="eyebrow">New main goal</p>
+              <h2 id="goalFormTitle">Plant a goal</h2>
+            </div>
+            <label>
+              <span>Goal name</span>
+              <input id="treeTitle" name="treeTitle" type="text" maxlength="90" placeholder="Launch a creative portfolio" required>
+            </label>
+            <label>
+              <span>Why this matters</span>
+              <textarea id="treeWhy" name="treeWhy" rows="3" maxlength="260" placeholder="Why is this goal worth finishing?"></textarea>
+            </label>
+            <label>
+              <span>Goal deadline</span>
+              <input id="treeDeadline" name="treeDeadline" type="date">
+            </label>
+            <fieldset class="icon-picker">
+              <legend>Goal icon</legend>
+              <label><input type="radio" name="treeIcon" value="sprout" checked><span>🌱</span></label>
+              <label><input type="radio" name="treeIcon" value="leaf"><span>🍃</span></label>
+              <label><input type="radio" name="treeIcon" value="tree"><span>🌳</span></label>
+              <label><input type="radio" name="treeIcon" value="target"><span>◎</span></label>
+              <label><input type="radio" name="treeIcon" value="star"><span>✦</span></label>
+            </fieldset>
+            <div class="form-actions">
+              <button id="treeSubmitButton" class="primary-button" type="submit">Create new goal</button>
+              <button id="cancelGoalEditButton" class="secondary-button" type="button" hidden>Cancel edit</button>
+            </div>
+          </form>
+
+          <div class="goals-board">
+            <div class="goals-board-header">
+              <div>
+                <p class="eyebrow">Main goal collection</p>
+                <h2>Choose where to grow next</h2>
+              </div>
+            </div>
+            <div id="treeList" class="tree-list" role="list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="workspacePage" class="app-layout workspace-page" aria-label="Goal workspace" hidden>
+      <section class="panel map-panel" aria-label="Branch tree">
+        <div class="panel-title">
+          <div>
+            <p class="eyebrow">Branch map</p>
+            <h2 id="activeTreeTitle">No goal selected</h2>
+          </div>
+          <div class="metric-row" aria-label="Progress summary">
+            <span><strong id="branchCount">0</strong> <span id="branchCountLabel">tasks</span></span>
+          </div>
+        </div>
+
+        <div id="selectedPath" class="selected-path">Select or create a branch.</div>
+        <div class="view-tabs" role="tablist" aria-label="Organization views">
+          <button id="branchesTab" class="view-tab active" type="button" role="tab" aria-selected="true" data-view="branches">Branches</button>
+          <button id="mindmapTab" class="view-tab" type="button" role="tab" aria-selected="false" data-view="mindmap">Mindmap</button>
+          <button id="organizedTab" class="view-tab" type="button" role="tab" aria-selected="false" data-view="organized">Plan Board</button>
+        </div>
+        <div id="branchTree" class="mindmap-canvas view-content active" data-view-content="branches" aria-label="Interactive branch canvas">
+          <svg id="branchLinks" class="branch-links" aria-hidden="true"></svg>
+          <div id="branchNodes" class="branch-nodes"></div>
+        </div>
+        <div id="simpleMindmapView" class="simple-mindmap-view view-content" data-view-content="mindmap" aria-label="Simple mindmap"></div>
+        <div id="organizedView" class="organized-view view-content" data-view-content="organized" aria-label="Planner task board"></div>
+      </section>
+
+      <aside class="panel editor-panel" id="inspector" aria-label="Selected branch editor">
+        <div class="panel-title">
+          <div>
+            <p id="selectedEyebrow" class="eyebrow">Selected branch</p>
+            <h2 id="selectedTitle">Nothing selected</h2>
+          </div>
+        </div>
+
+        <form id="branchForm" class="stacked-form" hidden>
+          <label>
+            <span id="titleLabel">Task name</span>
+            <input id="branchTitle" name="branchTitle" type="text" maxlength="100" required>
+          </label>
+          <label>
+            <span>Number / priority</span>
+            <input id="taskNumber" name="taskNumber" type="text" maxlength="12" placeholder="1">
+          </label>
+          <label>
+            <span>Notes</span>
+            <textarea id="branchWhy" name="branchWhy" rows="4" maxlength="360" placeholder="Add notes for this branch."></textarea>
+          </label>
+          <label id="deadlineField" class="deadline-field">
+            <span>Due date</span>
+            <input id="taskDeadline" name="taskDeadline" type="date">
+          </label>
+          <div class="button-stack">
+            <button id="setDoneButton" class="primary-button" type="button">Set as done</button>
+            <button id="moveTaskButton" class="secondary-button" type="button">Move task</button>
+            <button id="deleteSelectedButton" class="danger-button" type="button">Delete task</button>
+          </div>
+          <section id="moveTaskPanel" class="move-task-panel" hidden>
+            <div class="move-panel-header">
+              <div>
+                <p class="eyebrow">Move task</p>
+                <h3>Choose a new parent</h3>
+              </div>
+              <button id="cancelMoveButton" class="secondary-button compact-button" type="button">Cancel</button>
+            </div>
+            <label>
+              <span>Find destination</span>
+              <input id="moveTaskSearch" name="moveTaskSearch" type="search" placeholder="Search tasks or paths">
+            </label>
+            <div id="moveTaskTargets" class="move-target-list"></div>
+          </section>
+        </form>
+      </aside>
+
+      <section class="panel collection-panel" aria-label="Task collection">
+        <div class="panel-title">
+          <div>
+            <p class="eyebrow">Task collection</p>
+            <h2>Removed tasks</h2>
+          </div>
+          <span id="collectionCount" class="count-pill">0</span>
+        </div>
+        <div id="collectionList" class="collection-list"></div>
+        <article id="collectionDetail" class="collection-detail" hidden>
+          <p class="eyebrow">Finished task detail</p>
+          <h3 id="collectionDetailTitle"></h3>
+          <p><strong>Main goal:</strong> <span id="collectionDetailGoal"></span></p>
+          <p><strong>Initial name:</strong> <span id="collectionDetailInitial"></span></p>
+          <p><strong>Notes:</strong> <span id="collectionDetailNotes"></span></p>
+          <p><strong>Finished date:</strong> <span id="collectionDetailDate"></span></p>
+          <button id="restoreCollectionButton" class="primary-button" type="button">Put task back</button>
+        </article>
+      </section>
+      </section>
+    </main>
+
+    <template id="treeTemplate">
+      <article class="goal-card">
+        <button class="goal-open-button" type="button">
+          <span class="goal-icon"></span>
+          <span class="goal-card-copy">
+            <strong class="tree-name"></strong>
+            <span class="tree-meta"></span>
+            <span class="tree-deadline"></span>
+          </span>
+        </button>
+        <div class="goal-card-actions">
+          <button class="goal-edit-button secondary-button" type="button">Edit main goal</button>
+          <button class="goal-delete-button danger-button" type="button">Remove</button>
+        </div>
+      </article>
+    </template>
+
+    <div id="confirmOverlay" class="confirm-overlay" hidden>
+      <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <p class="eyebrow">Confirm action</p>
+        <h2 id="confirmTitle">Are you sure?</h2>
+        <p id="confirmMessage"></p>
+        <div class="confirm-actions">
+          <button id="confirmCancelButton" class="secondary-button" type="button">Cancel</button>
+          <button id="confirmAcceptButton" class="primary-button" type="button">Confirm</button>
+        </div>
+      </section>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
