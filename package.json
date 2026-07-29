@@ -5,6 +5,6 @@
   "description": "A motivational organization app for breaking long-term goals into deadline-driven branches.",
   "scripts": {
     "start": "python3 -m http.server 5173",
-    "check": "node --check app.js"
+    "check": "node --check src/app.js"
   }
 }

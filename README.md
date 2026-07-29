@@ -2,7 +2,7 @@
 
 Branches is a motivational planning app for turning a large goal into smaller, connected tasks. The core idea is simple: a goal should not feel like a flat checklist. It should grow like a living structure, where every task can branch into smaller tasks until the next step feels clear.
 
-![Branches preview](Branches%20UI/Main%20preview.png)
+![Branches preview](docs/screenshots/main-preview.png)
 
 ## What It Does
 
@@ -73,13 +73,16 @@ npm run check
 
 ```text
 .
-├── index.html             # App markup and templates
-├── styles.css             # Layout, views, jungle theme, and responsive styling
-├── app.js                 # State, rendering, interactions, and localStorage
-├── assets/                # Backgrounds and texture assets
-├── Branches UI/           # Design previews and screenshots
-├── Branches PRD.pdf       # Product requirements document
-├── package.json           # Local scripts
+├── index.html                    # App entry point and markup templates
+├── src/
+│   ├── app.js                    # State, rendering, interactions, and localStorage
+│   └── styles.css                # Layout, views, jungle theme, and responsive styling
+├── assets/                       # Backgrounds and texture assets
+├── docs/
+│   ├── branches-prd.pdf          # Product requirements document
+│   └── screenshots/              # Design previews and screenshots
+├── package.json                  # Local scripts
+├── AGENTS.md                     # Guidance for AI coding agents
 └── README.md
 ```
 

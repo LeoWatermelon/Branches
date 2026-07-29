@@ -8,7 +8,7 @@ Branches is a static, client-side prototype for breaking long-term goals into
 nested sub-tasks ("branches"), viewable as a branch diagram, a mindmap, or a
 plan board. There is no backend — all state lives in the browser via
 `localStorage`. See `README.md` for the feature list and product framing, and
-`Branches PRD.pdf` for the original product spec.
+`docs/branches-prd.pdf` for the original product spec.
 
 ## Git workflow
 
@@ -31,34 +31,35 @@ introduce a build step, framework, or npm dependency unless explicitly asked.
 ## File layout
 
 ```
-index.html   Full DOM structure — every element the app touches by id, plus <template> nodes for repeated markup (tree cards, mindmap nodes, etc.)
-styles.css   All styling for the header, goals page, and all three workspace views
-app.js       Entire application logic (~1900 lines, single file, no modules)
-assets/      Background textures and reference images used by styles.css
-Branches UI/ Preview screenshots referenced from README.md
+index.html         Full DOM structure — every element the app touches by id, plus <template> nodes for repeated markup (tree cards, mindmap nodes, etc.)
+src/styles.css      All styling for the header, goals page, and all three workspace views
+src/app.js          Entire application logic (~1900 lines, single file, no modules)
+assets/             Background textures and reference images used by src/styles.css (referenced with ../assets/ paths from CSS)
+docs/screenshots/   Preview screenshots referenced from README.md
+docs/branches-prd.pdf  Original product requirements document
 ```
 
 There is exactly one JS file and it is loaded directly by `index.html` with a
-plain `<script src="app.js">` (no ES modules, no imports). Keep new code in
-`app.js` unless the file's size genuinely warrants a split — ask before
-introducing a module system.
+plain `<script src="src/app.js">` (no ES modules, no imports). Keep new code
+in `src/app.js` unless the file's size genuinely warrants a split — ask
+before introducing a module system.
 
 ## Running / checking the app
 
 ```bash
 npm start   # python3 -m http.server 5173, then open http://localhost:5173
-npm run check   # node --check app.js — syntax check only, not a real test suite
+npm run check   # node --check src/app.js — syntax check only, not a real test suite
 ```
 
-There are no automated tests. After any non-trivial change to `app.js`, run
+There are no automated tests. After any non-trivial change to `src/app.js`, run
 `npm run check` and then manually exercise the change in a browser (see the
 `run` skill / start the dev server and click through the flow) before calling
 the work done.
 
-## Data model (in `app.js`)
+## Data model (in `src/app.js`)
 
 - `state` is a single object persisted to `localStorage` under `storageKey`
-  (`app.js:1`). **Bump `storageKey`'s version suffix (e.g. `-v11` → `-v12`)
+  (`src/app.js:1`). **Bump `storageKey`'s version suffix (e.g. `-v11` → `-v12`)
   whenever you change the shape of persisted data**, so old localStorage
   payloads from users' browsers don't crash the new code.
 - `state.trees` is an array of goal trees. Each tree has a `root` branch and a
@@ -67,7 +68,7 @@ the work done.
   structure: `{ id, title, why, icon, finishedAt, deadline, order, children }`.
   There's no separate "task" type at the data level — tasks are just nested
   branches.
-- `elements` (`app.js:46`) caches every DOM node the app reads/writes by
+- `elements` (`src/app.js:46`) caches every DOM node the app reads/writes by
   `document.querySelector`. If you add UI, add its element(s) here rather than
   querying ad hoc inside render functions.
 - Flow: `bindEvents()` wires DOM listeners → they mutate `state` → `render()`
