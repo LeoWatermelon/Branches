@@ -2,8 +2,6 @@
 
 Branches is a motivational planning app for turning a large goal into smaller, connected tasks. The core idea is simple: a goal should not feel like a flat checklist. It should grow like a living structure, where every task can branch into smaller tasks until the next step feels clear.
 
-![Branches preview](docs/screenshots/main-preview.png)
-
 ## What It Does
 
 Branches starts with a main-goals page. Each main goal can have its own icon, deadline, notes, and task tree. Opening a goal brings the user into a focused workspace where the same task structure can be viewed in three different ways.
