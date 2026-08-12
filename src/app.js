@@ -1,4 +1,4 @@
-const storageKey = "branches:functional-v11";
+const storageKey = "branches:functional-v12";
 
 const defaultGoalIcon = "sprout";
 const goalIcons = {
@@ -9,10 +9,19 @@ const goalIcons = {
   star: "✦"
 };
 
+const taskColorValues = {
+  fern: "#4f8a5f",
+  sun: "#efb454",
+  clay: "#d78a48",
+  sky: "#6d9fb3",
+  berry: "#a9556b"
+};
+
 const starterState = {
   theme: "light",
   currentPage: "goals",
   activeView: "branches",
+  defaultView: "branches",
   activeTreeId: "tree-main",
   selectedId: "branch-root",
   selectedType: "branch",
@@ -46,6 +55,7 @@ let undoSnapshot = null;
 const elements = {
   root: document.documentElement,
   homeButton: document.querySelector("#homeButton"),
+  dailyTrackerButton: document.querySelector("#dailyTrackerButton"),
   undoButton: document.querySelector("#undoButton"),
   goalsPage: document.querySelector("#goalsPage"),
   workspacePage: document.querySelector("#workspacePage"),
@@ -60,16 +70,20 @@ const elements = {
   treeList: document.querySelector("#treeList"),
   treeTemplate: document.querySelector("#treeTemplate"),
   goalCount: document.querySelector("#goalCount"),
+  goalsTutorialButton: document.querySelector("#goalsTutorialButton"),
   activeTreeTitle: document.querySelector("#activeTreeTitle"),
   branchCount: document.querySelector("#branchCount"),
   branchCountLabel: document.querySelector("#branchCountLabel"),
+  viewTutorialButton: document.querySelector("#viewTutorialButton"),
   selectedPath: document.querySelector("#selectedPath"),
+  setDefaultViewButton: document.querySelector("#setDefaultViewButton"),
   branchLinks: document.querySelector("#branchLinks"),
   branchNodes: document.querySelector("#branchNodes"),
   viewTabs: Array.from(document.querySelectorAll(".view-tab")),
   viewContents: Array.from(document.querySelectorAll("[data-view-content]")),
   simpleMindmapView: document.querySelector("#simpleMindmapView"),
   organizedView: document.querySelector("#organizedView"),
+  dailyTrackerView: document.querySelector("#dailyTrackerView"),
   selectedEyebrow: document.querySelector("#selectedEyebrow"),
   selectedTitle: document.querySelector("#selectedTitle"),
   inspector: document.querySelector("#inspector"),
@@ -80,6 +94,7 @@ const elements = {
   branchWhy: document.querySelector("#branchWhy"),
   deadlineField: document.querySelector("#deadlineField"),
   taskDeadline: document.querySelector("#taskDeadline"),
+  taskColorField: document.querySelector("#taskColorField"),
   setDoneButton: document.querySelector("#setDoneButton"),
   moveTaskButton: document.querySelector("#moveTaskButton"),
   moveTaskPanel: document.querySelector("#moveTaskPanel"),
@@ -100,7 +115,13 @@ const elements = {
   confirmTitle: document.querySelector("#confirmTitle"),
   confirmMessage: document.querySelector("#confirmMessage"),
   confirmCancelButton: document.querySelector("#confirmCancelButton"),
-  confirmAcceptButton: document.querySelector("#confirmAcceptButton")
+  confirmAcceptButton: document.querySelector("#confirmAcceptButton"),
+  tutorialOverlay: document.querySelector("#tutorialOverlay"),
+  tutorialEyebrow: document.querySelector("#tutorialEyebrow"),
+  tutorialTitle: document.querySelector("#tutorialTitle"),
+  tutorialIntro: document.querySelector("#tutorialIntro"),
+  tutorialSteps: document.querySelector("#tutorialSteps"),
+  tutorialCloseButton: document.querySelector("#tutorialCloseButton")
 };
 
 bindEvents();
@@ -114,12 +135,38 @@ function bindEvents() {
     render();
   });
 
+  elements.goalsTutorialButton.addEventListener("click", () => {
+    openTutorial(getTutorialContent("goals"));
+  });
+
+  elements.viewTutorialButton.addEventListener("click", () => {
+    openTutorial(getTutorialContent(state.activeView || "branches"));
+  });
+
   elements.viewTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       state.activeView = tab.dataset.view;
       saveState();
       render();
     });
+  });
+
+  elements.setDefaultViewButton.addEventListener("click", () => {
+    if (!isPrimaryView(state.activeView)) return;
+    state.defaultView = state.activeView;
+    saveState();
+    render();
+  });
+
+  elements.dailyTrackerButton.addEventListener("click", () => {
+    if (state.currentPage === "goals") {
+      state.currentPage = "workspace";
+      state.activeView = "daily";
+    } else {
+      state.activeView = state.activeView === "daily" ? "branches" : "daily";
+    }
+    saveState();
+    render();
   });
 
   elements.undoButton.addEventListener("click", () => {
@@ -192,6 +239,9 @@ function bindEvents() {
     selected.item.order = elements.taskNumber.value.trim();
     selected.item.why = elements.branchWhy.value.trim();
     selected.item.deadline = elements.taskDeadline.value;
+    if (selected.item.id !== getActiveTree()?.root.id) {
+      selected.item.color = getSelectedTaskColorInput();
+    }
     if (!selected.item.initialTitle && selected.item.title) {
       selected.item.initialTitle = selected.item.title;
     }
@@ -237,6 +287,14 @@ function bindEvents() {
   elements.restoreCollectionButton.addEventListener("click", async () => {
     await restoreSelectedCollectionTask();
   });
+
+  elements.tutorialCloseButton.addEventListener("click", closeTutorial);
+  elements.tutorialOverlay.addEventListener("click", (event) => {
+    if (event.target === elements.tutorialOverlay) closeTutorial();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !elements.tutorialOverlay.hidden) closeTutorial();
+  });
 }
 
 function render(options = {}) {
@@ -251,6 +309,7 @@ function render(options = {}) {
   renderMindmap();
   renderSimpleMindmap();
   renderOrganized();
+  renderDailyTracker();
   renderInspector(options);
   renderMoveTargets();
   renderCollection();
@@ -261,9 +320,23 @@ function renderViewTabs() {
   const activeView = state.activeView || "branches";
   elements.viewTabs.forEach((tab) => {
     const isActive = tab.dataset.view === activeView;
+    const isDefault = tab.dataset.view === state.defaultView;
     tab.classList.toggle("active", isActive);
+    tab.classList.toggle("default", isDefault);
     tab.setAttribute("aria-selected", String(isActive));
+    tab.setAttribute("aria-label", `${tab.textContent}${isDefault ? ", default view" : ""}`);
   });
+  const activePrimaryView = isPrimaryView(activeView);
+  elements.setDefaultViewButton.hidden = !activePrimaryView;
+  elements.setDefaultViewButton.disabled = !activePrimaryView || activeView === state.defaultView;
+  elements.setDefaultViewButton.textContent = activeView === state.defaultView ? "Default view" : "Set as default";
+  setDisabledHint(
+    elements.setDefaultViewButton,
+    activeView === state.defaultView ? "This is already your default view." : ""
+  );
+  const isDailyTrackerOpen = state.currentPage === "workspace" && activeView === "daily";
+  elements.dailyTrackerButton.classList.toggle("active", isDailyTrackerOpen);
+  elements.dailyTrackerButton.setAttribute("aria-pressed", String(isDailyTrackerOpen));
   elements.viewContents.forEach((content) => {
     content.classList.toggle("active", content.dataset.viewContent === activeView);
   });
@@ -274,6 +347,82 @@ function renderPage() {
   elements.goalsPage.hidden = page !== "goals";
   elements.workspacePage.hidden = page !== "workspace";
   elements.homeButton.hidden = page === "goals";
+  elements.dailyTrackerButton.hidden = false;
+}
+
+function openTutorial(content) {
+  elements.tutorialEyebrow.textContent = content.eyebrow || "Quick tutorial";
+  elements.tutorialTitle.textContent = content.title;
+  elements.tutorialIntro.textContent = content.intro;
+  elements.tutorialSteps.replaceChildren();
+  content.steps.forEach((step) => {
+    const item = document.createElement("li");
+    item.textContent = step;
+    elements.tutorialSteps.append(item);
+  });
+  elements.tutorialOverlay.hidden = false;
+  elements.tutorialCloseButton.focus();
+}
+
+function closeTutorial() {
+  elements.tutorialOverlay.hidden = true;
+}
+
+function getTutorialContent(view) {
+  const tutorials = {
+    goals: {
+      title: "Main Goals",
+      intro: "This is the home for your biggest goals before you enter the detailed workspace.",
+      steps: [
+        "Create a main goal with a name, deadline, and icon.",
+        "Click a goal card to open its workspace.",
+        "Use Edit main goal to update the goal later, or Remove to delete it with confirmation.",
+        "Daily Tracker in the top bar opens deadline-focused end tasks for the current goal."
+      ]
+    },
+    branches: {
+      title: "Branches View",
+      intro: "Use this when you want the most visual, tree-like version of your task structure.",
+      steps: [
+        "Click a task blob to select it and edit details on the right.",
+        "Click a plus button around the branch to grow a smaller task.",
+        "Use Back when zoomed into a smaller task to return to its parent.",
+        "Set this view as default if you want every goal to open here first."
+      ]
+    },
+    mindmap: {
+      title: "Mindmap View",
+      intro: "Use this when you want a cleaner map of how every task connects.",
+      steps: [
+        "Follow the connecting lines from the main goal to smaller tasks.",
+        "Click any task card to select it and update the editor.",
+        "Use the plus button on a card to add a smaller task directly under it.",
+        "Task colors and completion states stay synced with the other views."
+      ]
+    },
+    organized: {
+      title: "Plan Board",
+      intro: "Use this when you want a practical row-by-row planning view.",
+      steps: [
+        "The current task appears first, with its immediate smaller tasks below.",
+        "Click a row to inspect that task and continue down the path.",
+        "Use the breadcrumb to move back up to broader tasks.",
+        "Use Set as default if this is your preferred planning layout."
+      ]
+    },
+    daily: {
+      title: "Daily Tracker",
+      intro: "Use this to track end tasks that have deadlines.",
+      steps: [
+        "Only tasks with no smaller tasks and a due date appear here.",
+        "Tasks are grouped by Overdue, Today, Tomorrow, This week, and Later.",
+        "Click a task to see the full path from the main goal to that task.",
+        "Change task deadlines or colors in the editor and the tracker updates automatically."
+      ]
+    }
+  };
+
+  return tutorials[view] || tutorials.branches;
 }
 
 function renderGoalForm() {
@@ -294,6 +443,7 @@ function renderTreeList() {
     const item = elements.treeTemplate.content.firstElementChild.cloneNode(true);
     const branchTotal = countBranches(tree.root);
     const openTotal = countOpenTasks(tree.root);
+    const dashboard = getGoalDashboardStats(tree.root);
 
     item.classList.toggle("active", tree.id === state.activeTreeId);
     item.classList.toggle("editing", tree.id === state.editingTreeId);
@@ -302,6 +452,14 @@ function renderTreeList() {
     item.querySelector(".tree-name").textContent = displayTreeTitle(tree, index);
     item.querySelector(".tree-meta").textContent = `${branchTotal} task${branchTotal === 1 ? "" : "s"}, ${openTotal} open`;
     item.querySelector(".tree-deadline").textContent = tree.root.deadline ? `Due ${formatDate(tree.root.deadline)}` : "No deadline set";
+    item.querySelector(".goal-progress-label").textContent = `${dashboard.percent}% complete`;
+    item.querySelector(".goal-progress-fraction").textContent = `${dashboard.done}/${dashboard.total}`;
+    item.querySelector(".goal-progress-bar").style.setProperty("--goal-progress", `${dashboard.percent}%`);
+    item.querySelector(".goal-overdue").textContent = `${dashboard.overdue} overdue`;
+    item.querySelector(".goal-overdue").classList.toggle("has-overdue", dashboard.overdue > 0);
+    item.querySelector(".goal-next-deadline").textContent = dashboard.nextDeadline
+      ? `Next ${formatDate(dashboard.nextDeadline.deadline)}: ${dashboard.nextDeadline.title}`
+      : "No upcoming deadlines";
     item.querySelector(".goal-open-button").addEventListener("click", () => {
       openGoal(tree.id);
     });
@@ -343,6 +501,18 @@ function clearGoalEditForm(options = {}) {
 function setGoalIconInput(icon) {
   const input = elements.treeForm.querySelector(`input[name="treeIcon"][value="${icon}"]`)
     || elements.treeForm.querySelector(`input[name="treeIcon"][value="${defaultGoalIcon}"]`);
+  if (input) input.checked = true;
+}
+
+function getSelectedTaskColorInput() {
+  const input = elements.taskColorField.querySelector("input[name='taskColor']:checked");
+  return taskColorValues[input?.value] ? input.value : "";
+}
+
+function setTaskColorInput(color) {
+  const normalizedColor = taskColorValues[color] ? color : "";
+  const input = elements.taskColorField.querySelector(`input[name="taskColor"][value="${normalizedColor}"]`)
+    || elements.taskColorField.querySelector("input[name='taskColor'][value='']");
   if (input) input.checked = true;
 }
 
@@ -682,6 +852,7 @@ function createMindmapItem(mapItem) {
   card.classList.toggle("unnamed", !mapItem.item.title.trim());
   card.classList.toggle("focus-node", mapItem.role === "focus");
   card.classList.toggle("completed", Boolean(mapItem.item.finishedAt));
+  applyTaskColor(card, mapItem.item);
   card.innerHTML = `
     <span class="task-order" hidden></span>
     <strong class="branch-title"></strong>
@@ -740,6 +911,7 @@ function renderInspector(options = {}) {
     elements.taskNumber.value = selected.item.order || "";
     elements.branchWhy.value = selected.item.why || "";
     elements.taskDeadline.value = selected.item.deadline || "";
+    setTaskColorInput(selected.item.color || "");
   }
 
   const isRoot = tree?.root.id === selected.item.id;
@@ -748,6 +920,7 @@ function renderInspector(options = {}) {
   elements.titleLabel.textContent = isRoot ? "Main goal name" : "Task name";
   elements.branchWhy.placeholder = "Add notes for this task.";
   elements.deadlineField.hidden = false;
+  elements.taskColorField.hidden = isRoot;
   const immediateProgress = getImmediateProgress(selected.item);
   elements.setDoneButton.hidden = false;
   elements.setDoneButton.disabled = false;
@@ -882,6 +1055,7 @@ function createSimpleMindmapCard(entry) {
   const card = document.createElement("button");
   card.type = "button";
   card.className = `simple-map-card ${entry.isRoot ? "main-goal-card" : "task-card"}`;
+  applyTaskColor(card, item);
   card.style.left = `${entry.x}px`;
   card.style.top = `${entry.y}px`;
   card.classList.toggle("selected", state.selectedType === "branch" && state.selectedId === item.id);
@@ -974,6 +1148,156 @@ function renderOrganized() {
   elements.organizedView.append(header, focusSection, goalSection);
 }
 
+function renderDailyTracker() {
+  const tree = getActiveTree();
+  elements.dailyTrackerView.replaceChildren();
+
+  if (!tree) {
+    elements.dailyTrackerView.append(createEmptyState("Create a main goal to begin."));
+    return;
+  }
+
+  const terminalTasks = getTerminalDeadlineTasks(tree.root);
+  const header = document.createElement("div");
+  header.className = "daily-tracker-header";
+  header.innerHTML = `
+    <div>
+      <p class="eyebrow">Daily tracker</p>
+      <h3>End tasks with deadlines</h3>
+    </div>
+    <span class="count-pill">${terminalTasks.length}</span>
+  `;
+
+  const intro = document.createElement("p");
+  intro.className = "daily-tracker-copy";
+  intro.textContent = "Only tasks with no smaller tasks and a due date appear here.";
+
+  const selectedEntry = terminalTasks.find((entry) => entry.task.id === state.selectedId);
+  const detail = createDailyTrackerDetail(selectedEntry);
+  const groups = groupTerminalTasksByDeadline(terminalTasks);
+  const board = document.createElement("div");
+  board.className = "daily-tracker-board";
+
+  groups.forEach((group) => {
+    const section = document.createElement("section");
+    section.className = `daily-group daily-group-${group.tone}`;
+    const title = document.createElement("h4");
+    title.textContent = group.label;
+    section.append(title);
+
+    if (!group.items.length) {
+      section.append(createEmptyState(group.emptyText));
+    } else {
+      const list = document.createElement("div");
+      list.className = "daily-task-list";
+      group.items.forEach((entry) => {
+        list.append(createDailyTaskCard(entry));
+      });
+      section.append(list);
+    }
+
+    board.append(section);
+  });
+
+  elements.dailyTrackerView.append(header, intro, detail, board);
+}
+
+function createDailyTrackerDetail(entry) {
+  const detail = document.createElement("article");
+  detail.className = "daily-path-detail";
+
+  if (!entry) {
+    detail.innerHTML = `
+      <span class="daily-detail-icon">↳</span>
+      <div>
+        <p class="eyebrow">Task path</p>
+        <h3>Select an end task</h3>
+        <p>Click a task below to see its full path from the main goal.</p>
+      </div>
+    `;
+    return detail;
+  }
+
+  detail.innerHTML = `
+    <span class="daily-detail-icon">↳</span>
+    <div>
+      <p class="eyebrow">Task path</p>
+      <h3></h3>
+      <p></p>
+    </div>
+  `;
+  applyTaskColor(detail, entry.task);
+  detail.querySelector("h3").textContent = entry.title;
+  detail.querySelector("p:last-child").textContent = entry.path.join(" > ");
+  return detail;
+}
+
+function createDailyTaskCard(entry) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "daily-task-card";
+  button.classList.toggle("selected", state.selectedType === "branch" && state.selectedId === entry.task.id);
+  button.classList.toggle("completed", Boolean(entry.task.finishedAt));
+  applyTaskColor(button, entry.task);
+  button.innerHTML = `
+    <span class="daily-date"></span>
+    <strong></strong>
+    <small></small>
+    <span class="daily-status"></span>
+  `;
+  button.querySelector(".daily-date").textContent = formatDate(entry.task.deadline);
+  button.querySelector("strong").textContent = entry.title;
+  button.querySelector("small").textContent = entry.path.slice(0, -1).join(" > ") || "Main goal";
+  button.querySelector(".daily-status").textContent = entry.task.finishedAt ? "Done" : getDeadlineStatus(entry.task.deadline);
+  button.addEventListener("click", () => selectItem("branch", entry.task.id));
+  return button;
+}
+
+function getTerminalDeadlineTasks(root) {
+  return flattenTasks(root)
+    .filter((entry) => !(entry.task.children || []).length)
+    .filter((entry) => Boolean(entry.task.deadline))
+    .sort((a, b) => a.task.deadline.localeCompare(b.task.deadline) || a.path.join(" ").localeCompare(b.path.join(" ")));
+}
+
+function groupTerminalTasksByDeadline(tasks) {
+  const today = parseIsoDate(todayIso());
+  const day = 24 * 60 * 60 * 1000;
+  const groups = [
+    { label: "Overdue", tone: "overdue", emptyText: "No overdue end tasks.", items: [] },
+    { label: "Today", tone: "today", emptyText: "Nothing due today.", items: [] },
+    { label: "Tomorrow", tone: "tomorrow", emptyText: "Nothing due tomorrow.", items: [] },
+    { label: "This week", tone: "week", emptyText: "No end tasks due this week.", items: [] },
+    { label: "Later", tone: "later", emptyText: "No later end tasks yet.", items: [] }
+  ];
+
+  tasks.forEach((entry) => {
+    const due = parseIsoDate(entry.task.deadline);
+    const diff = Math.round((due - today) / day);
+    if (diff < 0) groups[0].items.push(entry);
+    else if (diff === 0) groups[1].items.push(entry);
+    else if (diff === 1) groups[2].items.push(entry);
+    else if (diff <= 7) groups[3].items.push(entry);
+    else groups[4].items.push(entry);
+  });
+
+  return groups;
+}
+
+function getDeadlineStatus(deadline) {
+  const today = parseIsoDate(todayIso());
+  const due = parseIsoDate(deadline);
+  const diff = Math.round((due - today) / (24 * 60 * 60 * 1000));
+  if (diff < 0) return `${Math.abs(diff)} day${Math.abs(diff) === 1 ? "" : "s"} late`;
+  if (diff === 0) return "Due today";
+  if (diff === 1) return "Due tomorrow";
+  return `${diff} days left`;
+}
+
+function isPrimaryView(view) {
+  return ["branches", "mindmap", "organized"].includes(view);
+}
+
 function createPlannerSection(title, description = "") {
   const section = document.createElement("section");
   section.className = "planner-section";
@@ -1029,6 +1353,7 @@ function createOrganizedCard(type, item, isFocus, orderValue = 0) {
   card.type = "button";
   const isRoot = item.id === getActiveTree()?.root.id;
   card.className = `organized-card ${isRoot ? "main-goal-card" : "task-card"} ${isFocus ? "focus-card" : ""}`;
+  applyTaskColor(card, item);
   card.classList.toggle("selected", state.selectedType === type && state.selectedId === item.id);
   card.classList.toggle("completed", Boolean(item.finishedAt));
 
@@ -1080,6 +1405,7 @@ function openGoal(treeId) {
   state.selectedCollectionId = "";
   state.movingTaskId = "";
   state.editingTreeId = "";
+  state.activeView = isPrimaryView(state.defaultView) ? state.defaultView : "branches";
   state.currentPage = "workspace";
   saveState();
   render();
@@ -1137,6 +1463,7 @@ function growChild(parentId, slotIndex = null) {
     finishedAt: "",
     deadline: "",
     order: "",
+    color: "",
     slot: Number.isInteger(slotIndex) ? slotIndex : parent.children.length,
     children: []
   });
@@ -1225,6 +1552,7 @@ async function collectAndRemoveSelected() {
       finishedAt: "",
       deadline: "",
       order: "",
+      color: "",
       children: []
     };
     state.selectedType = "branch";
@@ -1364,6 +1692,18 @@ function setProgressChip(element, type, item) {
   element.textContent = item.finishedAt ? "Done" : "0/0";
   element.style.setProperty("--progress", item.finishedAt ? "100%" : "0%");
   element.classList.toggle("complete", Boolean(item.finishedAt));
+}
+
+function applyTaskColor(element, task) {
+  if (!element || !task) return;
+  const root = getActiveTree()?.root;
+  const color = root?.id === task.id ? "" : taskColorValues[task.color];
+  element.classList.toggle("colored-task", Boolean(color));
+  if (color) {
+    element.style.setProperty("--task-color", color);
+  } else {
+    element.style.removeProperty("--task-color");
+  }
 }
 
 function syncAutoCompletedTasks() {
@@ -1622,6 +1962,34 @@ function countOpenTasks(branch) {
   return ownTask + (branch.children || []).reduce((sum, child) => sum + countOpenTasks(child), 0);
 }
 
+function getGoalDashboardStats(root) {
+  const tasks = flattenTasks(root);
+  const total = tasks.length;
+  const done = tasks.filter((entry) => Boolean(entry.task.finishedAt)).length;
+  const today = todayIso();
+  const overdue = tasks.filter((entry) => (
+    entry.task.deadline
+    && !entry.task.finishedAt
+    && entry.task.deadline < today
+  )).length;
+  const nextDeadline = tasks
+    .filter((entry) => entry.task.deadline && !entry.task.finishedAt && entry.task.deadline >= today)
+    .sort((a, b) => a.task.deadline.localeCompare(b.task.deadline))[0];
+
+  return {
+    done,
+    total,
+    percent: total ? Math.round(done / total * 100) : 0,
+    overdue,
+    nextDeadline: nextDeadline
+      ? {
+        deadline: nextDeadline.task.deadline,
+        title: nextDeadline.title
+      }
+      : null
+  };
+}
+
 function getBranchDepth(branch, id, depth = 0) {
   if (branch.id === id) return depth;
   for (const child of branch.children || []) {
@@ -1683,6 +2051,10 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(new Date(`${value}T00:00:00`));
 }
 
+function parseIsoDate(value) {
+  return new Date(`${value}T00:00:00`);
+}
+
 function createId(prefix) {
   if (crypto.randomUUID) return `${prefix}-${crypto.randomUUID()}`;
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
@@ -1706,6 +2078,7 @@ function createBlankTree() {
       finishedAt: "",
       deadline: "",
       order: "",
+      color: "",
       children: []
     },
     collection: []
@@ -1790,7 +2163,8 @@ function loadState() {
         ...structuredClone(starterState),
         ...stored,
         theme: stored.theme || "light",
-        activeView: stored.activeView || "branches"
+        activeView: stored.activeView || "branches",
+        defaultView: stored.defaultView || "branches"
       }, { forceGoalsPage: true });
     }
   } catch (error) {
@@ -1805,8 +2179,11 @@ function normalizeState(nextState, options = {}) {
   if (options.forceGoalsPage || !["goals", "workspace"].includes(nextState.currentPage)) {
     nextState.currentPage = "goals";
   }
-  if (!["branches", "mindmap", "organized"].includes(nextState.activeView)) {
+  if (!["branches", "mindmap", "organized", "daily"].includes(nextState.activeView)) {
     nextState.activeView = "branches";
+  }
+  if (!isPrimaryView(nextState.defaultView)) {
+    nextState.defaultView = "branches";
   }
   nextState.movingTaskId = nextState.movingTaskId || "";
   nextState.editingTreeId = nextState.editingTreeId || "";
@@ -1844,6 +2221,7 @@ function normalizeTask(task) {
     manuallyReopened: Boolean(task.manuallyReopened),
     deadline: task.deadline || "",
     order: task.order || "",
+    color: taskColorValues[task.color] ? task.color : "",
     slot: Number.isInteger(task.slot) ? task.slot : undefined,
     children: Array.isArray(task.children) ? task.children.map(normalizeTask) : []
   };
@@ -1873,6 +2251,7 @@ function normalizeCollectionRecord(record) {
     manuallyReopened: false,
     deadline: record.deadline || "",
     order: "",
+    color: taskColorValues[record.color] ? record.color : "",
     children: []
   };
 

@@ -27,6 +27,7 @@
       </div>
       <div class="header-actions">
         <button id="homeButton" class="secondary-button" type="button" hidden>Main goals</button>
+        <button id="dailyTrackerButton" class="secondary-button top-tracker-button" type="button" hidden>Daily Tracker</button>
         <button id="undoButton" class="secondary-button" type="button" disabled>Undo</button>
       </div>
     </header>
@@ -38,7 +39,10 @@
             <p class="eyebrow">Goal forest</p>
             <h2>Your main goals</h2>
           </div>
-          <span id="goalCount" class="count-pill">0</span>
+          <div class="panel-title-actions">
+            <button id="goalsTutorialButton" class="info-button" type="button" aria-label="Show main goals tutorial">i</button>
+            <span id="goalCount" class="count-pill">0</span>
+          </div>
         </div>
 
         <div class="goals-home-layout">
@@ -93,15 +97,19 @@
             <h2 id="activeTreeTitle">No goal selected</h2>
           </div>
           <div class="metric-row" aria-label="Progress summary">
+            <button id="viewTutorialButton" class="info-button" type="button" aria-label="Show view tutorial">i</button>
             <span><strong id="branchCount">0</strong> <span id="branchCountLabel">tasks</span></span>
           </div>
         </div>
 
         <div id="selectedPath" class="selected-path">Select or create a branch.</div>
-        <div class="view-tabs" role="tablist" aria-label="Organization views">
-          <button id="branchesTab" class="view-tab active" type="button" role="tab" aria-selected="true" data-view="branches">Branches</button>
-          <button id="mindmapTab" class="view-tab" type="button" role="tab" aria-selected="false" data-view="mindmap">Mindmap</button>
-          <button id="organizedTab" class="view-tab" type="button" role="tab" aria-selected="false" data-view="organized">Plan Board</button>
+        <div class="view-controls">
+          <div class="view-tabs" role="tablist" aria-label="Organization views">
+            <button id="branchesTab" class="view-tab active" type="button" role="tab" aria-selected="true" data-view="branches">Branches</button>
+            <button id="mindmapTab" class="view-tab" type="button" role="tab" aria-selected="false" data-view="mindmap">Mindmap</button>
+            <button id="organizedTab" class="view-tab" type="button" role="tab" aria-selected="false" data-view="organized">Plan Board</button>
+          </div>
+          <button id="setDefaultViewButton" class="secondary-button default-view-button" type="button">Set as default</button>
         </div>
         <div id="branchTree" class="mindmap-canvas view-content active" data-view-content="branches" aria-label="Interactive branch canvas">
           <svg id="branchLinks" class="branch-links" aria-hidden="true"></svg>
@@ -109,6 +117,7 @@
         </div>
         <div id="simpleMindmapView" class="simple-mindmap-view view-content" data-view-content="mindmap" aria-label="Simple mindmap"></div>
         <div id="organizedView" class="organized-view view-content" data-view-content="organized" aria-label="Planner task board"></div>
+        <div id="dailyTrackerView" class="daily-tracker-view view-content" data-view-content="daily" aria-label="Daily deadline tracker"></div>
       </section>
 
       <aside class="panel editor-panel" id="inspector" aria-label="Selected branch editor">
@@ -136,6 +145,15 @@
             <span>Due date</span>
             <input id="taskDeadline" name="taskDeadline" type="date">
           </label>
+          <fieldset id="taskColorField" class="task-color-field">
+            <legend>Task color</legend>
+            <label><input type="radio" name="taskColor" value="" checked><span class="color-dot color-default"></span></label>
+            <label><input type="radio" name="taskColor" value="fern"><span class="color-dot color-fern"></span></label>
+            <label><input type="radio" name="taskColor" value="sun"><span class="color-dot color-sun"></span></label>
+            <label><input type="radio" name="taskColor" value="clay"><span class="color-dot color-clay"></span></label>
+            <label><input type="radio" name="taskColor" value="sky"><span class="color-dot color-sky"></span></label>
+            <label><input type="radio" name="taskColor" value="berry"><span class="color-dot color-berry"></span></label>
+          </fieldset>
           <div class="button-stack">
             <button id="setDoneButton" class="primary-button" type="button">Set as done</button>
             <button id="moveTaskButton" class="secondary-button" type="button">Move task</button>
@@ -190,6 +208,17 @@
             <span class="tree-deadline"></span>
           </span>
         </button>
+        <div class="goal-dashboard">
+          <div class="goal-progress-row">
+            <span class="goal-progress-label"></span>
+            <span class="goal-progress-fraction"></span>
+          </div>
+          <span class="goal-progress-bar" aria-hidden="true"></span>
+          <div class="goal-insights">
+            <span class="goal-overdue"></span>
+            <span class="goal-next-deadline"></span>
+          </div>
+        </div>
         <div class="goal-card-actions">
           <button class="goal-edit-button secondary-button" type="button">Edit main goal</button>
           <button class="goal-delete-button danger-button" type="button">Remove</button>
@@ -205,6 +234,18 @@
         <div class="confirm-actions">
           <button id="confirmCancelButton" class="secondary-button" type="button">Cancel</button>
           <button id="confirmAcceptButton" class="primary-button" type="button">Confirm</button>
+        </div>
+      </section>
+    </div>
+
+    <div id="tutorialOverlay" class="confirm-overlay tutorial-overlay" hidden>
+      <section class="confirm-dialog tutorial-dialog" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
+        <p id="tutorialEyebrow" class="eyebrow">Quick tutorial</p>
+        <h2 id="tutorialTitle"></h2>
+        <p id="tutorialIntro"></p>
+        <ul id="tutorialSteps" class="tutorial-steps"></ul>
+        <div class="confirm-actions">
+          <button id="tutorialCloseButton" class="primary-button" type="button">Got it</button>
         </div>
       </section>
     </div>

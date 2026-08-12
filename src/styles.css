@@ -453,6 +453,38 @@ h1::before {
   margin-bottom: 10px;
 }
 
+.panel-title-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  min-height: 30px;
+  border: 1px solid color-mix(in srgb, var(--brand) 32%, var(--line));
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.7), transparent 34%),
+    color-mix(in srgb, var(--jungle-canopy) 72%, var(--surface));
+  color: var(--brand);
+  padding: 0;
+  font-size: 0.9rem;
+  font-weight: 950;
+  line-height: 1;
+  box-shadow: 0 8px 16px rgba(31, 42, 32, 0.08);
+}
+
+.info-button:hover {
+  border-color: var(--brand);
+  transform: translateY(-1px);
+}
+
 .count-pill,
 .metric-row span {
   display: inline-flex;
@@ -508,6 +540,76 @@ textarea {
   resize: vertical;
 }
 
+.task-color-field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-items: center;
+  border: 1px solid color-mix(in srgb, var(--jungle-fern) 28%, var(--line));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 78%, var(--jungle-canopy));
+  padding: 10px;
+}
+
+.task-color-field legend {
+  color: var(--muted);
+  font-weight: 850;
+  padding: 0 5px;
+}
+
+.task-color-field label {
+  display: inline-flex;
+  cursor: pointer;
+}
+
+.task-color-field input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.color-dot {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--surface);
+  border-radius: 999px;
+  background: var(--code-task);
+  box-shadow:
+    0 0 0 1px var(--line),
+    0 8px 14px rgba(31, 42, 32, 0.1);
+}
+
+.task-color-field input:checked + .color-dot {
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--brand) 34%, transparent),
+    0 8px 14px rgba(31, 42, 32, 0.12);
+}
+
+.color-default {
+  background: linear-gradient(135deg, var(--jungle-sun), var(--jungle-clay));
+}
+
+.color-fern {
+  background: #4f8a5f;
+}
+
+.color-sun {
+  background: #efb454;
+}
+
+.color-clay {
+  background: #d78a48;
+}
+
+.color-sky {
+  background: #6d9fb3;
+}
+
+.color-berry {
+  background: #a9556b;
+}
+
 input:focus,
 textarea:focus {
   border-color: var(--brand);
@@ -537,6 +639,20 @@ textarea:focus {
   border-color: var(--line);
   background: var(--surface);
   color: var(--ink);
+}
+
+.top-tracker-button {
+  border-color: color-mix(in srgb, var(--jungle-fern) 34%, var(--line));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--jungle-fern) 10%, var(--surface)), var(--surface));
+}
+
+.top-tracker-button.active {
+  border-color: var(--brand);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--jungle-fern) 24%, var(--surface)), color-mix(in srgb, var(--jungle-sun) 14%, var(--surface)));
+  color: var(--brand-dark);
+  box-shadow: 0 8px 18px rgba(31, 42, 32, 0.1);
 }
 
 .danger-button {
@@ -706,6 +822,75 @@ textarea:focus {
   font-weight: 800;
 }
 
+.goal-dashboard {
+  display: grid;
+  gap: 7px;
+  border: 1px solid color-mix(in srgb, var(--goal-accent, var(--brand)) 18%, var(--line));
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--surface-alt) 62%, var(--surface));
+  padding: 9px;
+}
+
+.goal-progress-row,
+.goal-insights {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.goal-progress-label,
+.goal-progress-fraction,
+.goal-overdue,
+.goal-next-deadline {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.goal-progress-fraction {
+  color: var(--brand-dark);
+}
+
+.goal-progress-bar {
+  position: relative;
+  overflow: hidden;
+  height: 9px;
+  border: 1px solid color-mix(in srgb, var(--goal-accent, var(--brand)) 24%, var(--line));
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.goal-progress-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--goal-progress, 0%);
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--goal-accent, var(--brand)), var(--jungle-sun));
+}
+
+.goal-insights {
+  align-items: flex-start;
+}
+
+.goal-overdue {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--jungle-canopy) 56%, var(--surface));
+  padding: 3px 8px;
+}
+
+.goal-overdue.has-overdue {
+  background: color-mix(in srgb, var(--danger) 13%, var(--surface));
+  color: var(--danger);
+}
+
+.goal-next-deadline {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
 .goal-delete-button {
   justify-self: stretch;
   min-height: 34px;
@@ -790,11 +975,19 @@ textarea:focus {
   background: linear-gradient(90deg, var(--jungle-fern), var(--jungle-sun));
 }
 
+.view-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
 .view-tabs {
   display: flex;
   width: fit-content;
   gap: 6px;
-  margin: 0 0 10px;
+  margin: 0;
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 4px;
@@ -817,6 +1010,27 @@ textarea:focus {
   background: color-mix(in srgb, var(--surface) 88%, var(--jungle-canopy));
   color: var(--brand);
   box-shadow: 0 6px 16px rgba(31, 42, 32, 0.08);
+}
+
+.view-tab.default::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--surface);
+  border-radius: 999px;
+  background: var(--jungle-sun);
+  box-shadow: 0 4px 8px rgba(31, 42, 32, 0.12);
+}
+
+.default-view-button {
+  min-height: 34px;
+  border-color: color-mix(in srgb, var(--jungle-sun) 38%, var(--line));
+  background: color-mix(in srgb, var(--surface) 86%, var(--jungle-sun));
+  padding-inline: 12px;
+  font-size: 0.82rem;
 }
 
 .mindmap-canvas {
@@ -1164,7 +1378,8 @@ textarea:focus {
 }
 
 .simple-mindmap-view,
-.organized-view {
+.organized-view,
+.daily-tracker-view {
   min-height: 520px;
   overflow: auto;
   border: 1px solid var(--line);
@@ -1173,6 +1388,15 @@ textarea:focus {
     linear-gradient(rgba(255, 253, 247, 0.78), rgba(246, 249, 239, 0.82)),
     url("../assets/jungle-blur-background.png") center / cover;
   padding: 18px;
+}
+
+.daily-tracker-view {
+  display: none;
+  gap: 14px;
+}
+
+.daily-tracker-view.active {
+  display: grid;
 }
 
 .simple-map-board {
@@ -1463,6 +1687,201 @@ textarea:focus {
   font-style: normal;
 }
 
+.daily-tracker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid color-mix(in srgb, var(--jungle-fern) 32%, var(--line));
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--jungle-fern) 14%, var(--surface)), color-mix(in srgb, var(--jungle-sun) 12%, var(--surface)));
+  padding: 16px;
+}
+
+.daily-tracker-header h3,
+.daily-path-detail h3 {
+  margin: 0;
+}
+
+.daily-tracker-copy {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 750;
+}
+
+.daily-path-detail {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+  border: 1px solid color-mix(in srgb, var(--jungle-sun) 42%, var(--line));
+  border-left: 9px solid var(--jungle-sun);
+  border-radius: 12px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--jungle-sun) 20%, var(--surface)), var(--surface));
+  padding: 16px;
+  box-shadow: 0 12px 22px rgba(31, 42, 32, 0.07);
+}
+
+.daily-path-detail p:last-child {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.daily-detail-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--jungle-fern) 16%, var(--surface));
+  color: var(--brand);
+  font-weight: 950;
+}
+
+.daily-tracker-board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(210px, 1fr));
+  gap: 12px;
+  min-width: 1060px;
+}
+
+.daily-group {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 300px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  padding: 12px;
+}
+
+.daily-group h4 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.daily-group-overdue {
+  border-color: color-mix(in srgb, #bd5c48 38%, var(--line));
+  background: linear-gradient(180deg, color-mix(in srgb, #bd5c48 10%, var(--surface)), var(--surface));
+}
+
+.daily-group-today {
+  border-color: color-mix(in srgb, var(--jungle-sun) 58%, var(--line));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--jungle-sun) 18%, var(--surface)), var(--surface));
+}
+
+.daily-group-tomorrow,
+.daily-group-week {
+  border-color: color-mix(in srgb, var(--jungle-fern) 38%, var(--line));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--jungle-fern) 10%, var(--surface)), var(--surface));
+}
+
+.daily-task-list {
+  display: grid;
+  gap: 9px;
+}
+
+.daily-task-card {
+  display: grid;
+  gap: 6px;
+  min-height: 118px;
+  border: 1px solid color-mix(in srgb, var(--jungle-fern) 32%, var(--line));
+  border-radius: 10px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--jungle-moss) 12%, var(--surface)), var(--surface));
+  color: var(--ink);
+  padding: 12px;
+  text-align: left;
+  box-shadow: 0 10px 18px rgba(31, 42, 32, 0.06);
+}
+
+.daily-task-card:hover,
+.daily-task-card.selected {
+  border-color: var(--jungle-fern);
+  box-shadow:
+    0 10px 18px rgba(31, 42, 32, 0.08),
+    0 0 0 4px color-mix(in srgb, var(--jungle-fern) 16%, transparent);
+}
+
+.daily-task-card.completed {
+  opacity: 0.78;
+}
+
+.daily-task-card strong,
+.daily-task-card small {
+  overflow-wrap: anywhere;
+}
+
+.daily-date,
+.daily-status {
+  width: fit-content;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--brand);
+  padding: 4px 9px;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.daily-task-card small {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.daily-status {
+  color: var(--muted);
+}
+
+.mindmap-node.colored-task {
+  border-color: color-mix(in srgb, var(--task-color) 72%, var(--line));
+  background:
+    radial-gradient(circle at 82% 16%, rgba(255, 255, 255, 0.45), transparent 26%),
+    linear-gradient(145deg, color-mix(in srgb, var(--task-color) 28%, var(--surface)), color-mix(in srgb, var(--task-color) 54%, var(--surface))),
+    url("../assets/bark-texture.png") center / cover;
+}
+
+.simple-map-card.colored-task,
+.organized-card.colored-task,
+.daily-task-card.colored-task,
+.daily-path-detail.colored-task {
+  border-color: color-mix(in srgb, var(--task-color) 58%, var(--line));
+  border-left-color: var(--task-color);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--task-color) 18%, var(--surface)), var(--surface));
+}
+
+.daily-task-card.colored-task .daily-date,
+.daily-path-detail.colored-task .daily-detail-icon,
+.colored-task .progress-chip {
+  border-color: color-mix(in srgb, var(--task-color) 36%, var(--line));
+  background: color-mix(in srgb, var(--task-color) 14%, var(--surface));
+  color: var(--ink);
+}
+
+.colored-task .progress-chip::before {
+  background: color-mix(in srgb, var(--task-color) 30%, transparent);
+}
+
+.daily-task-card.colored-task:hover,
+.daily-task-card.colored-task.selected,
+.simple-map-card.colored-task.selected,
+.organized-card.colored-task.selected,
+.mindmap-node.colored-task.selected {
+  border-color: var(--task-color);
+  box-shadow:
+    0 12px 22px rgba(31, 42, 32, 0.08),
+    0 0 0 4px color-mix(in srgb, var(--task-color) 18%, transparent);
+}
+
 .move-task-panel {
   display: grid;
   gap: 12px;
@@ -1611,6 +2030,27 @@ textarea:focus {
   margin-bottom: 0;
   color: var(--muted);
   line-height: 1.45;
+}
+
+.tutorial-dialog {
+  width: min(520px, 100%);
+  border-color: color-mix(in srgb, var(--jungle-fern) 34%, var(--line));
+  background:
+    radial-gradient(circle at 90% 8%, color-mix(in srgb, var(--jungle-sun) 18%, transparent), transparent 28%),
+    color-mix(in srgb, var(--surface) 96%, transparent);
+}
+
+.tutorial-steps {
+  display: grid;
+  gap: 9px;
+  margin: 2px 0 0;
+  padding-left: 20px;
+  color: var(--ink);
+}
+
+.tutorial-steps li {
+  padding-left: 2px;
+  line-height: 1.4;
 }
 
 .confirm-actions {
