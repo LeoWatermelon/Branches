@@ -22,6 +22,21 @@ commits on top of `origin/main` when they do diverge, to keep history linear.
 Do the same fetch-and-check immediately before pushing, in case the remote
 moved again while you were working.
 
+## Committing and branching
+
+Agents should automatically commit and push their own changes rather than
+leaving work uncommitted for the user to handle:
+
+- Always commit changes to an appropriately named branch (not directly to
+  `main`) and push to `origin` as you go, rather than waiting until a task is
+  "done."
+- When you recognize that a new, distinct unit of work is starting (a fix, a
+  bug, or a feature different from what's currently in progress), first open
+  a PR for the branch you were just working on (if it isn't already open),
+  then create a fresh branch for the new work off an up-to-date `main`.
+- Keep each branch/PR scoped to one fix/feature — don't pile unrelated work
+  into the same branch.
+
 ## Tech stack
 
 Plain HTML/CSS/JavaScript. No framework, no bundler, no package manager
@@ -87,6 +102,15 @@ the work done.
   "are you sure" flows — reuse them instead of `window.confirm`.
 - No comments-heavy style in this codebase; match the existing terse,
   self-documenting function naming rather than adding explanatory comments.
+
+## Keeping this file current
+
+Always update this file as part of your work, not as an afterthought — a
+fresh chat has no memory of this session and relies on AGENTS.md to
+understand the project's current state. When you change the file layout,
+data model, conventions, workflow, or add/remove any notable piece of
+architecture, update the relevant section here in the same change (and same
+commit/PR) rather than leaving it stale.
 
 ## Things to avoid
 
