@@ -51,6 +51,7 @@ let state = loadState();
 let lastFocusBranchId = state.focusBranchId;
 let pendingCenterTarget = null;
 let undoSnapshot = null;
+let resizeRenderTimeout = null;
 
 const elements = {
   root: document.documentElement,
@@ -126,6 +127,7 @@ const elements = {
 
 bindEvents();
 render();
+window.requestAnimationFrame(() => render());
 
 function bindEvents() {
   elements.homeButton.addEventListener("click", () => {
@@ -294,6 +296,11 @@ function bindEvents() {
   });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !elements.tutorialOverlay.hidden) closeTutorial();
+  });
+
+  window.addEventListener("resize", () => {
+    window.clearTimeout(resizeRenderTimeout);
+    resizeRenderTimeout = window.setTimeout(() => render(), 120);
   });
 }
 
@@ -637,17 +644,19 @@ function buildMindmapLayout(focusBranch, root, viewportWidth = 760) {
   const items = [];
   const links = [];
   const childTotal = (focusBranch.children || []).length;
-  const childGenerationSpacing = 780;
+  const childGenerationSpacing = Math.max(560, Math.min(780, viewportWidth * 0.9));
   const maxChildSlot = Math.max(...(focusBranch.children || []).map((child, index) => Number.isInteger(child.slot) ? child.slot : index), childTotal);
   const childGenerations = Math.floor((maxChildSlot + 6) / 6) + 1;
   const width = Math.max(
-    Math.floor(viewportWidth * 1.9),
-    1180,
-    1220 + (childGenerations - 1) * childGenerationSpacing
+    Math.floor(viewportWidth * 1.45),
+    920,
+    980 + (childGenerations - 1) * childGenerationSpacing
   );
   const height = 620;
   const trunkY = 320;
-  const focusX = Math.max(260, Math.min(360, Math.floor(viewportWidth * 0.44)));
+  const focusX = viewportWidth < 520
+    ? Math.max(72, Math.floor(viewportWidth * 0.22))
+    : Math.max(210, Math.min(330, Math.floor(viewportWidth * 0.38)));
   const focus = {
     type: "branch",
     role: "focus",
@@ -658,13 +667,19 @@ function buildMindmapLayout(focusBranch, root, viewportWidth = 760) {
     displayTitle: displayBranchTitle(root, focusBranch)
   };
   const children = focusBranch.children || [];
+  const nearX = viewportWidth < 520
+    ? Math.max(210, Math.floor(viewportWidth * 0.54))
+    : Math.max(240, Math.min(360, Math.floor(viewportWidth * 0.42)));
+  const middleX = nearX + Math.max(150, Math.min(230, Math.floor(viewportWidth * 0.24)));
+  const farX = middleX + Math.max(150, Math.min(230, Math.floor(viewportWidth * 0.24)));
+  const branchEnd = Math.max(170, Math.min(230, Math.floor(viewportWidth * 0.3)));
   const childSlots = [
-    { dx: 390, dy: -104, endDx: 630, endDy: -236 },
-    { dx: 390, dy: 104, endDx: 630, endDy: 236 },
-    { dx: 620, dy: -104, endDx: 860, endDy: -236 },
-    { dx: 620, dy: 104, endDx: 860, endDy: 236 },
-    { dx: 850, dy: -104, endDx: 1090, endDy: -236 },
-    { dx: 850, dy: 104, endDx: 1090, endDy: 236 }
+    { dx: nearX, dy: -104, endDx: nearX + branchEnd, endDy: -236 },
+    { dx: nearX, dy: 104, endDx: nearX + branchEnd, endDy: 236 },
+    { dx: middleX, dy: -104, endDx: middleX + branchEnd, endDy: -236 },
+    { dx: middleX, dy: 104, endDx: middleX + branchEnd, endDy: 236 },
+    { dx: farX, dy: -104, endDx: farX + branchEnd, endDy: -236 },
+    { dx: farX, dy: 104, endDx: farX + branchEnd, endDy: 236 }
   ];
 
   items.push(focus);

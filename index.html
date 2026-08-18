@@ -8,7 +8,7 @@
       content="Branches helps users break long-term goals into smaller tasks on a mindmap."
     >
     <title>Branches</title>
-    <link rel="stylesheet" href="src/styles.css">
+    <link rel="stylesheet" href="src/styles.css?v=redesign-1">
   </head>
   <body>
     <header class="app-header">
@@ -93,7 +93,7 @@
       <section class="panel map-panel" aria-label="Branch tree">
         <div class="panel-title">
           <div>
-            <p class="eyebrow">Branch map</p>
+            <p class="eyebrow">Goal workspace</p>
             <h2 id="activeTreeTitle">No goal selected</h2>
           </div>
           <div class="metric-row" aria-label="Progress summary">
@@ -102,7 +102,7 @@
           </div>
         </div>
 
-        <div id="selectedPath" class="selected-path">Select or create a branch.</div>
+        <div id="selectedPath" class="selected-path">Select or create a task.</div>
         <div class="view-controls">
           <div class="view-tabs" role="tablist" aria-label="Organization views">
             <button id="branchesTab" class="view-tab active" type="button" role="tab" aria-selected="true" data-view="branches">Branches</button>
@@ -250,6 +250,6 @@
       </section>
     </div>
 
-    <script src="src/app.js"></script>
+    <script src="src/app.js?v=redesign-1"></script>
   </body>
 </html>

@@ -52,6 +52,7 @@ src/app.js          Entire application logic (~1900 lines, single file, no modul
 assets/             Background textures and reference images used by src/styles.css (referenced with ../assets/ paths from CSS)
 docs/screenshots/   Preview screenshots referenced from README.md
 docs/branches-prd.pdf  Original product requirements document
+design-qa.md        Latest Product Design QA report when a UI redesign is implemented
 ```
 
 There is exactly one JS file and it is loaded directly by `index.html` with a
